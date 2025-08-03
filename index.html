@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブロック崩し</title>
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+  <script>
+    const backgroundImages = [];
+    for (let i = 1; i <= 50; i++) {
+      const img = new Image();
+      img.src = `dog${i}.png`;
+      backgroundImages.push(img);
+    }
+    const brickHitSound = new Tone.MembraneSynth().toDestination();
+    const paddleHitSound = new Tone.FMSynth().toDestination();
+    const wallHitSound = new Tone.AMSynth().toDestination();
+  </script>
+  <style>
+    body {
+      margin: 0;
+      background-color: #121212;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #gameWrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      margin-top: 30px;
+      position: relative;
+    }
+    #gameContainer {
+      position: relative;
+    }
+    #gameCanvas {
+      border: 2px solid #ddd;
+      background-color: #000;
+      border-radius: 8px;
+    }
+    #sidebar {
+      width: 150px;
+      height: 520px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: #222;
+      color: #fff;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #sidebar h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+    #controlContainer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      color: white;
+    }
+    #startButton { background: #28a745; }
+    #muteButton { background: #007bff; }
+    #restartButton { background: #dc3545; }
+    #exitButton { background: #6c757d; }
+    #message {
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 10;
+      color: #fff;
+      pointer-events: none;
+      text-align: center;
+    }
+    .game-over-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    .game-over-content {
+      text-align: center;
+      background: rgba(255,255,255,0.1);
+      padding: 30px;
+      border-radius: 10px;
+      border: 2px solid #ff6666;
+      color: #fff;
+    }
+    .game-over-title {
+      font-size: 32px;
+      color: #ff6666;
+    }
+    .game-over-score {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .button-group button {
+      flex: 1;
+      min-width: 120px;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameWrapper">
+    <div id="gameContainer">
+      <canvas id="gameCanvas" width="600" height="520"></canvas>
+      <div id="message">Press Start</div>
+      <!-- ボタンはキャンバスの下（バー下）に移動 -->
+      <div id="controlContainer">
+        <button id="startButton">スタート</button>
+        <button id="muteButton">ミュート</button>
+      </div>
+    </div>
+    <div id="sidebar">
+      <h2>Game Info</h2>
+      <p id="scoreDisplay">Score: 0</p>
+      <p id="livesDisplay">Lives: 3</p>
+      <div style="margin-top: 20px;">
+        <label for="levelSelect" style="display: block; margin-bottom: 5px;">Level:</label>
+        <select id="levelSelect" style="width: 100%; padding: 5px; font-size: 14px; border-radius: 3px; border: 1px solid #ccc;">
+          <option value="1">Level 1</option>
+          <option value="2">Level 2</option>
+          <option value="3">Level 3</option>
+          <option value="4">Level 4</option>
+          <option value="5">Level 5</option>
+          <option value="6">Level 6</option>
+          <option value="7">Level 7</option>
+          <option value="8">Level 8</option>
+          <option value="9">Level 9</option>
+          <option value="10">Level 10</option>
+          <option value="11">Level 11</option>
+          <option value="12">Level 12</option>
+          <option value="13">Level 13</option>
+          <option value="14">Level 14</option>
+          <option value="15">Level 15</option>
+          <option value="16">Level 16</option>
+          <option value="17">Level 17</option>
+          <option value="18">Level 18</option>
+          <option value="19">Level 19</option>
+          <option value="20">Level 20</option>
+          <option value="21">Level 21</option>
+          <option value="22">Level 22</option>
+          <option value="23">Level 23</option>
+          <option value="24">Level 24</option>
+          <option value="25">Level 25</option>
+          <option value="26">Level 26</option>
+          <option value="27">Level 27</option>
+          <option value="28">Level 28</option>
+          <option value="29">Level 29</option>
+          <option value="30">Level 30</option>
+          <option value="31">Level 31</option>
+          <option value="32">Level 32</option>
+          <option value="33">Level 33</option>
+          <option value="34">Level 34</option>
+          <option value="35">Level 35</option>
+          <option value="36">Level 36</option>
+          <option value="37">Level 37</option>
+          <option value="38">Level 38</option>
+          <option value="39">Level 39</option>
+          <option value="40">Level 40</option>
+          <option value="41">Level 41</option>
+          <option value="42">Level 42</option>
+          <option value="43">Level 43</option>
+          <option value="44">Level 44</option>
+          <option value="45">Level 45</option>
+          <option value="46">Level 46</option>
+          <option value="47">Level 47</option>
+          <option value="48">Level 48</option>
+          <option value="49">Level 49</option>
+          <option value="50">Level 50</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-over-overlay" id="gameOverOverlay">
+    <div class="game-over-content">
+      <div class="game-over-title">ゲームオーバー</div>
+      <div class="game-over-score">スコア: <span id="finalScore">0</span></div>
+      <div class="button-group">
+        <button id="restartButton">リスタート</button>
+        <button id="exitButton">終了</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+     const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const startButton = document.getElementById('startButton');
+    const muteButton = document.getElementById('muteButton');
+    const restartButton = document.getElementById('restartButton');
+    const exitButton = document.getElementById('exitButton');
+    const levelSelect = document.getElementById('levelSelect');
+    const messageElement = document.getElementById('message');
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    const finalScoreDisplay = document.getElementById('finalScore');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const livesDisplay = document.getElementById('livesDisplay');
+
+    let paddleWidth = 100, paddleHeight = 15;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+    let ballRadius = 10;
+    let x = canvas.width / 2, y = canvas.height - 30;
+    let dx = 3, dy = -3;
+    let baseDx = 3, baseDy = -3; // 基本速度を保存
+    let rightPressed = false, leftPressed = false;
+    let muted = false, gameRunning = false, showBackground = false, gameWon = false;
+    let score = 0, lives = 3, currentLevel = 1;
+    let animationId;
+
+    const brickRowCount = 13;
+    const brickColumnCount = 12;
+    const brickPadding = 5;
+    const brickWidth = 40;
+    const brickHeight = 20;
+    const brickOffsetTop = 10; // ブロックを一行ずつ上に詰める
+    let brickOffsetLeft = 0;
+    const rowColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00BFFF', '#0000FF', '#8A2BE2', '#FF69B4', '#FF1493', '#FFA500', '#66CDAA', '#20B2AA', '#B22222'];
+
+    let bricks = [];
+
+    function initializeBricks() {
+      bricks = [];
+      for (let c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for (let r = 0; r < brickRowCount; r++) {
+          bricks[c][r] = { x: 0, y: 0, status: 1 };
+        }
+      }
+      brickOffsetLeft = (canvas.width - (brickColumnCount * (brickWidth + brickPadding) - brickPadding)) / 2;
+    }
+
+    function updateSidebar() {
+      scoreDisplay.textContent = "Score: " + score;
+      livesDisplay.textContent = "Lives: " + lives;
+    }
+
+    function drawBricks() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          const b = bricks[c][r];
+          if (b.status === 1) {
+            const brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+            const brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+            b.x = brickX;
+            b.y = brickY;
+            ctx.fillStyle = rowColors[r % rowColors.length];
+            ctx.fillRect(brickX, brickY, brickWidth, brickHeight);
+          }
+        }
+      }
+    }
+
+    function drawPaddle() {
+      ctx.beginPath();
+      ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#FFD700";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function collisionDetection() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          const b = bricks[c][r];
+          if (b.status === 1) {
+            // ボールの中心座標を基準にした当たり判定を拡張
+            if (x + ballRadius > b.x && x - ballRadius < b.x + brickWidth && 
+                y + ballRadius > b.y && y - ballRadius < b.y + brickHeight) {
+              
+              // より詳細な当たり判定で跳ね返り方向を決定
+              const ballCenterX = x;
+              const ballCenterY = y;
+              const brickCenterX = b.x + brickWidth / 2;
+              const brickCenterY = b.y + brickHeight / 2;
+              
+              const deltaX = ballCenterX - brickCenterX;
+              const deltaY = ballCenterY - brickCenterY;
+              
+              // どちら側から当たったかを判定
+              if (Math.abs(deltaX / brickWidth) > Math.abs(deltaY / brickHeight)) {
+                // 左右から当たった場合
+                dx = -dx;
+              } else {
+                // 上下から当たった場合
+                dy = -dy;
+              }
+              
+              b.status = 0;
+              score++;
+              if (!muted) brickHitSound.triggerAttackRelease("C4", "8n");
+              updateSidebar();
+              // 全ブロックが消えたかチェック
+              let remainingBricks = 0;
+              for (let checkC = 0; checkC < brickColumnCount; checkC++) {
+                for (let checkR = 0; checkR < brickRowCount; checkR++) {
+                  if (bricks[checkC][checkR].status === 1) {
+                    remainingBricks++;
+                  }
+                }
+              }
+              if (remainingBricks === 0) {
+                // ゲームを停止してから画面をクリア
+                gameRunning = false;
+                cancelAnimationFrame(animationId);
+                // 少し遅延してからブロックとボールを消去し、勝利メッセージを表示
+                setTimeout(() => {
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  // 背景イラストのみ描画
+                  if (showBackground) {
+                    const backgroundImage = backgroundImages[currentLevel - 1];
+                    if (backgroundImage && backgroundImage.complete) {
+                      ctx.drawImage(backgroundImage, 0, 0, 600, 320);
+                    }
+                  }
+                  drawPaddle(); // パドルは残す
+                  showWinMessage();
+                }, 100);
+              }
+              return; // 1つのブロックに当たったら処理を終了
+            }
+          }
+        }
+      }
+    }
+
+    function draw() {
+      if (!gameRunning) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (showBackground) {
+        const backgroundImage = backgroundImages[currentLevel - 1];
+        if (backgroundImage && backgroundImage.complete) {
+          ctx.drawImage(backgroundImage, 0, 0, 600, 320);
+        }
+      }
+
+      drawBricks();
+      drawBall();
+      drawPaddle();
+      collisionDetection();
+
+      if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+        if (!muted) wallHitSound.triggerAttackRelease("C3", "8n");
+      }
+      if (y + dy < ballRadius) {
+        dy = -dy;
+      } else if (y + dy > canvas.height - ballRadius) {
+        if (x > paddleX && x < paddleX + paddleWidth) {
+          dx = ((x - (paddleX + paddleWidth / 2)) / (paddleWidth / 2)) * 5;
+          dy = -dy;
+          if (!muted) paddleHitSound.triggerAttackRelease("G4", "8n");
+        } else {
+          lives--;
+          updateSidebar();
+          if (!lives) {
+            gameRunning = false;
+            finalScoreDisplay.textContent = score;
+            gameOverOverlay.style.display = "flex";
+            cancelAnimationFrame(animationId);
+            return;
+          } else {
+            x = canvas.width / 2;
+            y = canvas.height - 30;
+            paddleX = (canvas.width - paddleWidth) / 2;
+            dx = baseDx;
+            dy = baseDy;
+          }
+        }
+      }
+
+      if (rightPressed) paddleX = Math.min(paddleX + 6, canvas.width - paddleWidth);
+      else if (leftPressed) paddleX = Math.max(paddleX - 6, 0);
+
+      x += dx;
+      y += dy;
+
+      animationId = requestAnimationFrame(draw);
+    }
+
+    function startGame() {
+      currentLevel = parseInt(levelSelect.value);
+      // レベルに応じてボールの速度を設定
+      const speedMultiplier = 1 + Math.floor((currentLevel - 1) / 10) * 0.5; // 10レベルごとに0.5倍速増加
+      baseDx = 3 * speedMultiplier;
+      baseDy = -3 * speedMultiplier;
+      
+      resetGame();
+      gameRunning = true;
+      gameWon = false;
+      showBackground = true;
+      messageElement.style.display = "none";
+      messageElement.style.pointerEvents = "none";
+      gameOverOverlay.style.display = "none";
+      updateSidebar();
+      draw();
+    }
+
+    function resetGame() {
+      score = 0;
+      lives = 3;
+      x = canvas.width / 2;
+      y = canvas.height - 30;
+      dx = baseDx;
+      dy = baseDy;
+      paddleX = (canvas.width - paddleWidth) / 2;
+      initializeBricks();
+      updateSidebar();
+    }
+
+    function showMessage(text) {
+      messageElement.textContent = text;
+      messageElement.style.display = "block";
+    }
+
+    function showWinMessage() {
+      gameWon = true;
+      messageElement.innerHTML = "<div style='font-size: 28px; margin-bottom: 10px;'>YOU WIN!</div><div style='font-size: 16px;'>Click to continue</div>";
+      messageElement.style.display = "block";
+      messageElement.style.pointerEvents = "auto";
+      messageElement.style.cursor = "pointer";
+    }
+
+    function toggleMute() {
+      muted = !muted;
+      muteButton.textContent = muted ? "ミュート解除" : "ミュート";
+    }
+
+    function exitToMainScreen() {
+      gameRunning = false;
+      gameWon = false;
+      showBackground = false;
+      gameOverOverlay.style.display = "none";
+      messageElement.style.display = "block";
+      messageElement.textContent = "Press Start";
+      messageElement.style.pointerEvents = "none";
+      messageElement.style.cursor = "default";
+      resetGame();
+      // 初期画面を描画
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBricks();
+      drawBall();
+      drawPaddle();
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    }
+
+    // レベル選択の変更イベント
+    levelSelect.addEventListener("change", function() {
+      if (!gameRunning) {
+        // ゲーム中でない場合は背景を更新
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBricks();
+        drawBall();
+        drawPaddle();
+      }
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+      if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+    });
+    document.addEventListener("keyup", e => {
+      if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+      if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+    });
+
+    startButton.addEventListener("click", startGame);
+    muteButton.addEventListener("click", toggleMute);
+    restartButton.addEventListener("click", startGame);
+    exitButton.addEventListener("click", exitToMainScreen);
+
+    // 勝利画面でのクリックイベント
+    canvas.addEventListener("click", function() {
+      if (gameWon) {
+        exitToMainScreen();
+      }
+    });
+
+    // メッセージエリアでのクリックイベント
+    messageElement.addEventListener("click", function() {
+      if (gameWon) {
+        exitToMainScreen();
+      }
+    });
+
+    initializeBricks();
+    drawBricks();
+    drawBall();
+    drawPaddle();
+    updateSidebar();
+    showMessage("Press Start");
+  </script>
+</body>
+</html>
