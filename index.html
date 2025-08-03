@@ -234,11 +234,11 @@
     let score = 0, lives = 3, currentLevel = 1;
     let animationId;
 
-    const brickRowCount = 13;
-    const brickColumnCount = 12;
+    const brickRowCount = 7; // 13行の半分（端数切り上げ）
+    const brickColumnCount = 6; // 12列の半分
     const brickPadding = 5;
-    const brickWidth = 40;
-    const brickHeight = 20;
+    const brickWidth = 80; // 40の2倍
+    const brickHeight = 40; // 20の2倍
     const brickOffsetTop = 10; // ブロックを一行ずつ上に詰める
     let brickOffsetLeft = 0;
     const rowColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00BFFF', '#0000FF', '#8A2BE2', '#FF69B4', '#FF1493', '#FFA500', '#66CDAA', '#20B2AA', '#B22222'];
@@ -404,8 +404,8 @@
         }
       }
 
-      if (rightPressed) paddleX = Math.min(paddleX + 6, canvas.width - paddleWidth);
-      else if (leftPressed) paddleX = Math.max(paddleX - 6, 0);
+      if (rightPressed) paddleX = Math.min(paddleX + 8, canvas.width - paddleWidth);
+      else if (leftPressed) paddleX = Math.max(paddleX - 8, 0);
 
       x += dx;
       y += dy;
@@ -433,7 +433,8 @@
 
     function resetGame() {
       score = 0;
-      lives = 3;
+      // レベル21以上は10Lives、それ以下は3Lives
+      lives = (currentLevel >= 21) ? 10 : 3;
       x = canvas.width / 2;
       y = canvas.height - 30;
       dx = baseDx;
