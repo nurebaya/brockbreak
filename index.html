@@ -223,7 +223,7 @@
     const scoreDisplay = document.getElementById('scoreDisplay');
     const livesDisplay = document.getElementById('livesDisplay');
 
-    let paddleWidth = 100, paddleHeight = 15;
+    let paddleWidth = 150, paddleHeight = 15; // 100から150に変更（1.5倍）
     let paddleX = (canvas.width - paddleWidth) / 2;
     let ballRadius = 10;
     let x = canvas.width / 2, y = canvas.height - 30;
@@ -231,7 +231,7 @@
     let baseDx = 3, baseDy = -3; // 基本速度を保存
     let rightPressed = false, leftPressed = false;
     let muted = false, gameRunning = false, showBackground = false, gameWon = false;
-    let score = 0, lives = 3, currentLevel = 1;
+    let score = 0, lives = 10, currentLevel = 1; // 初期Lives数を10に変更
     let animationId;
 
     const brickRowCount = 7; // 13行の半分（端数切り上げ）
@@ -433,8 +433,8 @@
 
     function resetGame() {
       score = 0;
-      // レベル21以上は10Lives、それ以下は3Lives
-      lives = (currentLevel >= 21) ? 10 : 3;
+      // 全レベルで10Lives
+      lives = 10;
       x = canvas.width / 2;
       y = canvas.height - 30;
       dx = baseDx;
