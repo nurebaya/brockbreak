@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ブロック崩し</title>
-  <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+  <script src="js/Tone.min.js"></script>
   <script>
     const backgroundImages = [];
     for (let i = 1; i <= 50; i++) {
       const img = new Image();
-      img.src = `dog${i}.png`;
+      img.src = `image/girl${i}.png`;
       backgroundImages.push(img);
     }
     const brickHitSound = new Tone.MembraneSynth().toDestination();
@@ -19,7 +19,7 @@
   <style>
     body {
       margin: 0;
-      background-color: #121212;
+      background-color: #ffffff;
       font-family: 'Arial', sans-serif;
       display: flex;
       flex-direction: column;
@@ -30,30 +30,67 @@
       justify-content: center;
       align-items: flex-start;
       gap: 20px;
-      margin-top: 30px;
+      margin-top: 10px;
       position: relative;
+    }
+    #gameTitle {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      padding: 15px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+      width: 874px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
     }
     #gameContainer {
       position: relative;
     }
     #gameCanvas {
-      border: 2px solid #ddd;
+      border: 2px solid #333;
       background-color: #000;
       border-radius: 8px;
     }
     #sidebar {
-      width: 150px;
+      width: 250px;
       height: 520px;
-      border: 2px solid #ddd;
+      border: 2px solid #333;
       border-radius: 8px;
-      background-color: #222;
-      color: #fff;
-      padding: 10px;
+      background-color: #f8f9fa;
+      color: #333;
+      padding: 15px;
       box-sizing: border-box;
+      font-size: 14px;
     }
     #sidebar h2 {
       text-align: center;
       margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    #sidebar h3 {
+      margin-top: 10px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      color: #4ecdc4;
+    }
+    #sidebar .how-to-play {
+      background-color: #e9ecef;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 8px;
+      line-height: 1.4;
     }
     #controlContainer {
       margin-top: 20px;
@@ -79,7 +116,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 24px;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: rgba(0, 0, 0, 0.8);
       padding: 20px;
       border-radius: 10px;
       display: none;
@@ -126,6 +163,7 @@
   </style>
 </head>
 <body>
+  <div id="gameTitle">R18ブロック崩しゲーム【BLOCK GIRLS ❤ COLLECTION】</div>
   <div id="gameWrapper">
     <div id="gameContainer">
       <canvas id="gameCanvas" width="600" height="520"></canvas>
@@ -139,61 +177,73 @@
     <div id="sidebar">
       <h2>Game Info</h2>
       <p id="scoreDisplay">Score: 0</p>
-      <p id="livesDisplay">Lives: 3</p>
+      <p id="livesDisplay">Lives: 10</p>
       <div style="margin-top: 20px;">
         <label for="levelSelect" style="display: block; margin-bottom: 5px;">Level:</label>
         <select id="levelSelect" style="width: 100%; padding: 5px; font-size: 14px; border-radius: 3px; border: 1px solid #ccc;">
-          <option value="1">Level 1</option>
-          <option value="2">Level 2</option>
-          <option value="3">Level 3</option>
-          <option value="4">Level 4</option>
-          <option value="5">Level 5</option>
-          <option value="6">Level 6</option>
-          <option value="7">Level 7</option>
-          <option value="8">Level 8</option>
-          <option value="9">Level 9</option>
-          <option value="10">Level 10</option>
-          <option value="11">Level 11</option>
-          <option value="12">Level 12</option>
-          <option value="13">Level 13</option>
-          <option value="14">Level 14</option>
-          <option value="15">Level 15</option>
-          <option value="16">Level 16</option>
-          <option value="17">Level 17</option>
-          <option value="18">Level 18</option>
-          <option value="19">Level 19</option>
-          <option value="20">Level 20</option>
-          <option value="21">Level 21</option>
-          <option value="22">Level 22</option>
-          <option value="23">Level 23</option>
-          <option value="24">Level 24</option>
-          <option value="25">Level 25</option>
-          <option value="26">Level 26</option>
-          <option value="27">Level 27</option>
-          <option value="28">Level 28</option>
-          <option value="29">Level 29</option>
-          <option value="30">Level 30</option>
-          <option value="31">Level 31</option>
-          <option value="32">Level 32</option>
-          <option value="33">Level 33</option>
-          <option value="34">Level 34</option>
-          <option value="35">Level 35</option>
-          <option value="36">Level 36</option>
-          <option value="37">Level 37</option>
-          <option value="38">Level 38</option>
-          <option value="39">Level 39</option>
-          <option value="40">Level 40</option>
-          <option value="41">Level 41</option>
-          <option value="42">Level 42</option>
-          <option value="43">Level 43</option>
-          <option value="44">Level 44</option>
-          <option value="45">Level 45</option>
-          <option value="46">Level 46</option>
-          <option value="47">Level 47</option>
-          <option value="48">Level 48</option>
-          <option value="49">Level 49</option>
-          <option value="50">Level 50</option>
+          <option value="1">Level 1：黄金の檻に囚われた眼差し</option>
+          <option value="2">Level 2：孤月の夜に溺れる眼差し</option>
+          <option value="3">Level 3：黒き薔薇と破られた均衡</option>
+          <option value="4">Level 4：堕天の羽根と沈黙の微笑</option>
+          <option value="5">Level 5：蝶と戯れる紫の沈黙</option>
+          <option value="6">Level 6：白く甘い吐息と月下の戯れ</option>
+          <option value="7">Level 7：秘めた柔肌と夢の残り香</option>
+          <option value="8">Level 8：無垢を装う淫夜の旋律</option>
+          <option value="9">Level 9：夜と光に溶けるふたりの距離</option>
+          <option value="10">Level 10：冷たい青に濡れる黒き誘惑</option>
+          <option value="11">Level 11：ちょっぴりドキドキな朝の挨拶</option>
+          <option value="12">Level 12：華やかな曲線美</option>
+          <option value="13">Level 13：解放感のある素材</option>
+          <option value="14">Level 14：開放的なポージング</option>
+          <option value="15">Level 15：月下のリーフガーデン</option>
+          <option value="16">Level 16：見下ろす街、見上げる空、そして私</option>
+          <option value="17">Level 17：伸びやかな脚線美</option>
+          <option value="18">Level 18：振り返る耳と濡れた夜</option>
+          <option value="19">Level 19：夜の高層プールサイド</option>
+          <option value="20">Level 20：夜の涼と月のうさぎ</option>
+          <option value="21">Level 21：〇〇〇包囲網</option>
+          <option value="22">Level 22：スリングショットバニーガール</option>
+          <option value="23">Level 23：スリングショットバニーガール</option>
+          <option value="24">Level 24：ダウナー少女とスリングショット</option>
+          <option value="25">Level 25：ダウナー少女とスリングショット</option>
+          <option value="26">Level 26：紅き瞳の小さな王</option>
+          <option value="27">Level 27：生まれたままのおはよう</option>
+          <option value="28">Level 28：生まれたままの朝</option>
+          <option value="29">Level 29：豊満な奉仕</option>
+          <option value="30">Level 30：夕焼けとスリングショット</option>
+          <option value="31">Level 31：ヘアヌードプリンセス</option>
+          <option value="32">Level 32：紅眼の誘い、白の揺らぎ</option>
+          <option value="33">Level 33：黒翼の王女、天より降臨</option>
+          <option value="34">Level 34：蒼き角の花冠姫</option>
+          <option value="35">Level 35：朝から元気ないたずら姫</option>
+          <option value="36">Level 36：天華に咲く微笑</option>
+          <option value="37">Level 37：白蛇姫のまどろみ</option>
+          <option value="38">Level 38：夢の扉を開く時</option>
+          <option value="39">Level 39：無垢なる魔性</option>
+          <option value="40">Level 40：優雅なる朝の訪れ</option>
+          <option value="41">Level 41：隙だらけの夜に乾杯</option>
+          <option value="42">Level 42：隙だらけの夜に乾杯</option>
+          <option value="43">Level 43：隙だらけの夜に乾杯</option>
+          <option value="44">Level 44：隙だらけの夜に乾杯</option>
+          <option value="45">Level 45：隙だらけの夜に乾杯</option>
+          <option value="46">Level 46：隙だらけの夜に乾杯</option>
+          <option value="47">Level 47：隙だらけの夜に乾杯</option>
+          <option value="48">Level 48：隙だらけの夜に乾杯</option>
+          <option value="49">Level 49：隙だらけの夜に乾杯</option>
+          <option value="50">Level 50：隙だらけの夜に乾杯</option>
         </select>
+      </div>
+      
+      <div class="how-to-play">
+        <h3>遊び方</h3>
+        <div style="margin-bottom: 15px;">
+          <strong>ゲームの始め方：</strong><br>
+          プルダウンからレベルを選んでスタートをクリック
+        </div>
+        <div>
+          <strong>操作方法：</strong><br>
+          ←→ 移動
+        </div>
       </div>
     </div>
   </div>
